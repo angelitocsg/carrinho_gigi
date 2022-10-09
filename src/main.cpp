@@ -9,6 +9,7 @@
 #define START 'o'
 #define STOP 's'
 #define LIGHT 'g'
+#define TURBO 't'
 
 #define VELOCITY 150
 
@@ -23,8 +24,16 @@ void anda_para_tras();
 void pisca_led();
 void virar_para_esquerda();
 void virar_para_direita();
+void turbina_motores();
+void vai();
 
 bool statusFarol = true;
+
+int current_velocity = VELOCITY;
+bool turbo_mode = false;
+bool forward_direction = true;
+int turn_delay = 2000;
+int turn_velocity() { return current_velocity / 2; }
 
 void setup()
 {
@@ -57,14 +66,23 @@ void loop()
       anda_para_tras();
       break;
     case TURN_LEFT:
-      virar_para_esquerda();
+      if (forward_direction)
+        virar_para_esquerda();
+      else
+        virar_para_direita();
       break;
     case TURN_RIGHT:
-      virar_para_direita();
+      if (forward_direction)
+        virar_para_direita();
+      else
+        virar_para_esquerda();
       break;
     case LIGHT:
       digitalWrite(A0, statusFarol ? HIGH : LOW);
       statusFarol = !statusFarol;
+      break;
+    case TURBO:
+      turbina_motores();
       break;
     default:
       desliga_motores();
@@ -115,32 +133,63 @@ void desliga_motores()
 
 void anda_para_frente()
 {
-  motor3.setSpeed(VELOCITY);
-  motor4.setSpeed(VELOCITY);
-  motor3.run(BACKWARD);
-  motor4.run(BACKWARD);
-}
-
-void anda_para_tras()
-{
-  motor3.setSpeed(VELOCITY);
-  motor4.setSpeed(VELOCITY);
+  forward_direction = true;
+  motor3.setSpeed(current_velocity);
+  motor4.setSpeed(current_velocity);
   motor3.run(FORWARD);
   motor4.run(FORWARD);
 }
 
-void virar_para_esquerda()
+void anda_para_tras()
 {
-  motor3.setSpeed(VELOCITY);
-  motor4.setSpeed(VELOCITY - 50);
+  forward_direction = false;
+  motor3.setSpeed(current_velocity);
+  motor4.setSpeed(current_velocity);
   motor3.run(BACKWARD);
   motor4.run(BACKWARD);
 }
 
+void virar_para_esquerda()
+{
+  motor3.setSpeed(current_velocity);
+  motor4.setSpeed(current_velocity - turn_velocity());
+  motor3.run(forward_direction ? FORWARD : BACKWARD);
+  motor4.run(forward_direction ? FORWARD : BACKWARD);
+
+  delay(turn_delay);
+  vai();
+}
+
 void virar_para_direita()
 {
-  motor3.setSpeed(VELOCITY - 50);
-  motor4.setSpeed(VELOCITY);
-  motor3.run(BACKWARD);
-  motor4.run(BACKWARD);
+  motor3.setSpeed(current_velocity - turn_velocity());
+  motor4.setSpeed(current_velocity);
+  motor3.run(forward_direction ? FORWARD : BACKWARD);
+  motor4.run(forward_direction ? FORWARD : BACKWARD);
+
+  delay(turn_delay);
+  vai();
+}
+
+void turbina_motores()
+{
+  turbo_mode = !turbo_mode;
+
+  if (!turbo_mode)
+  {
+    current_velocity = VELOCITY;
+    vai();
+    return;
+  }
+
+  current_velocity = 255;
+  vai();
+}
+
+void vai()
+{
+  if (forward_direction)
+    anda_para_frente();
+  else
+    anda_para_tras();
 }

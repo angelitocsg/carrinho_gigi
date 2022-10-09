@@ -11,7 +11,8 @@
 #define LIGHT 'g'
 #define TURBO 't'
 
-#define VELOCITY 150
+#define NORMAL_VELOCITY 150
+#define TURBO_VELOCITY 255
 
 AF_DCMotor motor3(3);
 AF_DCMotor motor4(4);
@@ -29,7 +30,7 @@ void vai();
 
 bool statusFarol = true;
 
-int current_velocity = VELOCITY;
+int current_velocity = NORMAL_VELOCITY;
 bool turbo_mode = false;
 bool forward_direction = true;
 int turn_delay = 2000;
@@ -155,9 +156,6 @@ void virar_para_esquerda()
   motor4.setSpeed(current_velocity - turn_velocity());
   motor3.run(forward_direction ? FORWARD : BACKWARD);
   motor4.run(forward_direction ? FORWARD : BACKWARD);
-
-  delay(turn_delay);
-  vai();
 }
 
 void virar_para_direita()
@@ -166,9 +164,6 @@ void virar_para_direita()
   motor4.setSpeed(current_velocity);
   motor3.run(forward_direction ? FORWARD : BACKWARD);
   motor4.run(forward_direction ? FORWARD : BACKWARD);
-
-  delay(turn_delay);
-  vai();
 }
 
 void turbina_motores()
@@ -177,12 +172,12 @@ void turbina_motores()
 
   if (!turbo_mode)
   {
-    current_velocity = VELOCITY;
+    current_velocity = NORMAL_VELOCITY;
     vai();
     return;
   }
 
-  current_velocity = 255;
+  current_velocity = TURBO_VELOCITY;
   vai();
 }
 

@@ -1,6 +1,7 @@
 
 #include <Arduino.h>
 #include <AFMotor.h>
+#include <Thread.h>
 
 #define TURN_LEFT 'l'
 #define TURN_RIGHT 'r'
@@ -28,7 +29,8 @@ void virar_para_direita();
 void turbina_motores();
 void vai();
 
-bool statusFarol = true;
+bool statusFarol = false;
+bool piscaFarol = false;
 
 int current_velocity = NORMAL_VELOCITY;
 bool turbo_mode = false;
@@ -36,13 +38,36 @@ bool forward_direction = true;
 int turn_delay = 2000;
 int turn_velocity() { return current_velocity / 2; }
 
+Thread myThread = Thread();
+void callback_function();
+
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(A0, OUTPUT);
+  pinMode(A5, OUTPUT);
   setup_bluetooth();
   pisca_led();
-  digitalWrite(A0, HIGH);
+  digitalWrite(A5, LOW);
+
+  myThread.enabled = true; // Default enabled value is true
+  myThread.setInterval(250);
+  myThread.onRun(callback_function); // callback_function is the name of the function
+}
+
+void callback_function()
+{
+  if (!statusFarol)
+    return;
+
+  if (piscaFarol)
+  {
+    digitalWrite(A5, HIGH);
+    piscaFarol = !piscaFarol;
+    return;
+  }
+
+  digitalWrite(A5, LOW);
+  piscaFarol = !piscaFarol;
 }
 
 void loop()
@@ -56,9 +81,11 @@ void loop()
     {
     case START:
       liga_motores();
+      statusFarol = true;
       break;
     case STOP:
       desliga_motores();
+      statusFarol = false;
       break;
     case GO_FORWARD:
       anda_para_frente();
@@ -79,7 +106,7 @@ void loop()
         virar_para_esquerda();
       break;
     case LIGHT:
-      digitalWrite(A0, statusFarol ? HIGH : LOW);
+      digitalWrite(A5, statusFarol ? HIGH : LOW);
       statusFarol = !statusFarol;
       break;
     case TURBO:

@@ -19,3 +19,7 @@ STOP = 's'
 LIGHT = 'g' # not working yet
 TURBO = 't' # alternates between 150 and 255 motor speed
 ```
+
+## References
+
+https://www.filipeflop.com/blog/modulo-rf-transmissor-receptor-433mhz-arduino/

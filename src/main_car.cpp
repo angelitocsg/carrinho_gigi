@@ -1,3 +1,5 @@
+#ifdef FLAG_CAR
+
 #include <Arduino.h>
 #include <MyLights.h>
 #include <MyMotors.h>
@@ -92,3 +94,5 @@ void change_bt_settings()
   Serial.write("AT+PIN1234");
   delay(1000);
 }
+
+#endif

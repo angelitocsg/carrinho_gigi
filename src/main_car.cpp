@@ -7,14 +7,20 @@
 
 MyMotors motors;
 MyLights lights;
-MyReceiver receiver;
+// MyReceiver receiver;
 void do_action(char c);
+byte message[VW_MAX_MESSAGE_LEN];
+byte msgLength = VW_MAX_MESSAGE_LEN;
 
 void setup()
 {
   Serial.begin(9600);
-  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.println("Iniciando...");
   pinMode(A5, OUTPUT);
+
+  vw_set_rx_pin(RX_PIN);
+  vw_setup(1000);
+  vw_rx_start();
 }
 
 void loop()
@@ -23,12 +29,8 @@ void loop()
   uint8_t msgLength = VW_MAX_MESSAGE_LEN;
 
   if (vw_get_message(message, &msgLength))
-  {
-    for (int i = 0; i < msgLength; i++)
-    {
-      Serial.write(message[i]);
-    }
-  }
+    if (msgLength == 1)
+      do_action(message[0]);
 
   while (Serial.available())
   {
@@ -39,6 +41,8 @@ void loop()
 
 void do_action(char c)
 {
+  Serial.print("Action: ");
+  Serial.println(c);
   switch (c)
   {
   case START:

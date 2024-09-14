@@ -7,14 +7,12 @@
 
 MyMotors motors;
 MyLights lights;
-// MyReceiver receiver;
 void do_action(char c);
 byte message[VW_MAX_MESSAGE_LEN];
 byte msgLength = VW_MAX_MESSAGE_LEN;
 
 void setup_rf_rx()
 {
-  Serial.print("setup_rf_rx");
   vw_set_rx_pin(RX_PIN);
   vw_setup(1000);
   vw_rx_start();
@@ -25,7 +23,6 @@ void setup()
   Serial.begin(9600);
   Serial.println("Iniciando...");
   pinMode(A5, OUTPUT);
-
   setup_rf_rx();
 }
 
@@ -55,13 +52,11 @@ void loop()
 
 void do_action(char c)
 {
-  Serial.println("Action: ");
-  Serial.println(c);
   switch (c)
   {
   case START:
     lights.acende_farol();
-    motors.liga_motores();
+    motors.libera_motores();
     break;
   case STOP:
     lights.apaga_farol();
